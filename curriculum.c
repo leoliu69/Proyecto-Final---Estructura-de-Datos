@@ -99,5 +99,30 @@ bool validarPrerequisitos(Estudiante* est, Asignatura* asig) {
 }
 
 void calcularPromedios (AppState* state){
-    
+    if (!state->datos_cargados) return;
+
+    float sumaNotas = 0.0;
+    int creditosConNota = 0;
+    int creditosAprobados = 0;
+
+
+    MapPair* pair = map_first(state->estudiante->malla);
+    while (pair) {
+        Asignatura* asig = (Asignatura*)pair->value;
+        
+        if (asig->situacion == APROBADO || asig->situacion == REPROBADO){
+            if(asig->nota > 0){
+                sumaNotas += asig->nota * asig->creditos;
+                creditosConNota += asig->creditos;
+            }
+        }
+        if (asig->situacion == APROBADO){
+            creditosAprobados += asig->creditos;
+        }
+
+        pair = map_next(state->estudiante->malla);
+    }
+
+    state->estudiante->creditos_aprobados = creditosAprobados;
+    state->estudiante->promedio_acumulado = (creditosConNota > 0) ? (sumaNotas / creditosConNota) : 0.0;
 }
