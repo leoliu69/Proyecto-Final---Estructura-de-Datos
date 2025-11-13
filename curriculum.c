@@ -126,3 +126,51 @@ void calcularPromedios (AppState* state){
     state->estudiante->creditos_aprobados = creditosAprobados;
     state->estudiante->promedio_acumulado = (creditosConNota > 0) ? (sumaNotas / creditosConNota) : 0.0;
 }
+
+void verAvance(AppState* state) {
+    if (!state->datos_cargados) {
+        printf("\nPrimero debes cargar una malla curricular.\n");
+        return;
+    }
+
+    calcularPromedios(state);
+
+    limpiarPantalla();
+    printf("========================================\n");
+    printf("        AVANCE GENERAL\n");
+    printf("========================================\n\n");
+
+    printf("Estudiante: %s\n\n", state->estudiante->nombre);
+
+    printf("Creditos Aprobados: %d / %d\n", state->estudiante->creditos_aprobados, state->estudiante->creditos_totales);
+    
+    float porcentaje = (state->estudiante->creditos_totales > 0) ? 
+                       ((float)state->estudiante->creditos_aprobados / state->estudiante->creditos_totales) * 100 : 0.0;
+
+    printf("Porcentaje de avance: %.1f%%\n", porcentaje);
+    printf("Promedio acumulado: %.2f\n\n", state->estudiante->promedio_acumulado);
+                       
+    printf("Detalle por semestre:\n");
+    printf("%-10s %-50s %-10s %-10s %-15s\n", "CODIGO", "NOMBRE", "CREDITOS", "NOTA", "SITUACION");
+    printf("========================================================================================================\n");
+
+    for (int sem = 1 ; sem <= 11 ; sem++) {
+        bool tieneAsignaturas = false;
+
+        MapPair* pair = map_first(state->estudiante->malla);
+        while (pair) {
+            Asignatura* asig = (Asignatura*)pair->value;
+            if (asig->semestre == sem) {
+                if (!tieneAsignaturas) {
+                    printf("\n--- SEMESTRE %d ---\n", sem);
+                    tieneAsignaturas = true;
+                }
+
+                printf("%-10s %-50s %-10d %-10.1f %-15s\n", asig->codigo, asig->nombre, asig->creditos, asig->nota, situacionToString(asig->situacion));
+            }
+            pair = map_next(state->estudiante->malla);
+        }
+    }
+
+    printf("\n========================================\n");
+}
