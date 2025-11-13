@@ -14,4 +14,5 @@ int main{
     printf("========================================\n\n");
 
     printf("¿Desea cargar una malla curricular? (S/N): ");
+    char cargar;
 }
