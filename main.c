@@ -3,11 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-<<<<<<< HEAD
-int main{
-    
-}
-=======
 int main() {
     AppState* state createAppState() ;
     char opcion;
@@ -31,7 +26,19 @@ int main() {
         
         char nombreArchivo[256];
         scanf("%255s", nombreArchivo);
+        char rutaCompleta[300];
+        sprintf(rutaCompleta, "data/%s", nombreArchivo);
+
+        printf("\nCargando malla curricular desde:  %s...\n\n", rutaCompleta);
+        cargarMalla(state, rutaCompleta);
+        presioneTeclaParaContinuar();
+    } else {
+        limpiarPantalla();
+        printf("Cargando malla curricular por defecto...\n\n");
+        cargarMalla(state, "data/curriculum_map.csv");
+        presioneTeclaParaContinuar();
+    }
+    do {
         
     }
 }
->>>>>>> 05a2aaa499813e586891f960438d6f7c39aa09da
