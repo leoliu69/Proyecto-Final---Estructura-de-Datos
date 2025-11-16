@@ -74,4 +74,12 @@ En Windows:
 El archivo debe estar dentro de la carpeta:
 data/
 
+---
+
+# 🧭 Flujo de ejecución del programa
+
+Al iniciar el programa, se muestra una pantalla introductoria y se pregunta al usuario:
+
+¿Desea cargar una malla curricular? (S/N):
+```
 
