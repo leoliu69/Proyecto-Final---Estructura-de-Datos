@@ -22,6 +22,40 @@ El sistema carga una malla curricular desde un archivo, permite registrar semest
 
 ## 📁 Estructura del proyecto
 
+
+---
+
+## 🧩 Tecnologías y TDAs utilizados
+
+### 🔹 **Lenguaje**
+- C
+
+### 🔹 **TDA Map**
+
+- Implementado como **tabla hash**
+- Se usa para almacenar las asignaturas por código
+- Operaciones comunes: búsqueda, inserción, actualización  
+- Complejidad promedio: **O(1)**
+
+### 🔹 **TDA List**
+
+- Lista doblemente enlazada
+- Usada para:
+  - prerrequisitos
+  - asignaturas inscritas
+  - historial de semestres
+- Complejidad de recorrido: **O(n)**
+
+### 🔹 **(Opcional) TDA Graph**
+
+- Representación de prerrequisitos como grafo dirigido
+- Sirve para obtener ramos disponibles (topological sort)
+
+---
+
+
+
+
   
 
 
