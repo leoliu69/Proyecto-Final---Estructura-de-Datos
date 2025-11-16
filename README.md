@@ -28,6 +28,7 @@ El sistema carga una malla curricular desde un archivo, permite registrar semest
 ## 🧩 Tecnologías y TDAs utilizados
 
 ### 🔹 **Lenguaje**
+
 - C
 
 ### 🔹 **TDA Map**
