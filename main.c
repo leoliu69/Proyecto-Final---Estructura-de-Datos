@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 int main() {
-    AppState* state createAppState() ;
+    AppState* state = createAppState();
     char opcion;
 
     printf("========================================\n");
@@ -17,7 +17,7 @@ int main() {
     char cargar;
     scanf(" %c", &cargar);
     int c;
-    while ((c = getchar()) != '\n' && c != EOF) 
+    while ((c = getchar()) != '\n' && c != EOF);
 
     if (cargar == 'S' || cargar == 's') {
         limpiarPantalla();
@@ -88,7 +88,7 @@ int main() {
 
                 limpiarPantalla();
                 printf("¿Que semestre desea actualizar? (1-11): ");
-                int num_semestre ; 
+                int num_semestre; 
 
                 if (scanf("%d", &num_semestre) !=1 ) {
                     num_semestre = -1;
@@ -119,9 +119,9 @@ int main() {
 
                 limpiarPantalla();
                 printf("¿Para que semestre desea inscribir asignaturas? (1-11): ");
-                int semestre ; 
+                int semestre; 
 
-                if (scanf("%d", &num_semestre) !=1 ) {
+                if (scanf("%d", &semestre) !=1 ) {
                     semestre = -1;
                 }
                 while ((c = getchar()) != '\n' && c != EOF) ;
@@ -156,9 +156,10 @@ int main() {
                 presioneTeclaParaContinuar();
                 break;     
             }
-            case '7':
+            case '7': {
                 printf("\n¡Gracias por usar el Sistema de Avance Curricular!\n");
                 printf("\nDesarrollado por Team CZ, Estructura de Datos 2S 2025\n");
+                break;
             }
 
             default: {
