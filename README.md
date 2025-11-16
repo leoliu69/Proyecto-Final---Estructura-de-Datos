@@ -20,7 +20,7 @@ El sistema carga una malla curricular desde un archivo, permite registrar semest
   
 ---
 
-## 📁 Estructura del proyecto
+## 📁 Estructura del proyectos
 
 
 ---
@@ -54,6 +54,25 @@ El sistema carga una malla curricular desde un archivo, permite registrar semest
 
 ---
 
+## ▶️ Compilación
+
+En Linux / Mac:
+
+```bash
+gcc main.c curriculum.c tdas/*.c -o navegador
+
+__ ## ▶️ Ejecución__
+
+En Linux / Mac:
+./navegador
+
+En Windows:
+./navegador.exe
+
+
+📂 Requisitos del archivo CSV
+El archivo debe estar dentro de la carpeta:
+data/
 
 
 
