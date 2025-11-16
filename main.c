@@ -17,7 +17,7 @@ int main() {
     char cargar;
     scanf(" %c", &cargar);
     int c;
-    while ((c = getchar()) != '\n' && c != EOF) 
+    while ((c = getchar()) != '\n' && c != EOF);
 
     if (cargar == 'S' || cargar == 's') {
         limpiarPantalla();
