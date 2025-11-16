@@ -61,7 +61,7 @@ En Linux / Mac:
 ```bash
 gcc main.c curriculum.c tdas/*.c -o navegador
 
-__ ## ▶️ Ejecución__
+**## ▶️__textoClonar el repositori
 
 En Linux / Mac:
 ./navegador
@@ -75,8 +75,3 @@ El archivo debe estar dentro de la carpeta:
 data/
 
 
-
-  
-
-
-# nnnn
