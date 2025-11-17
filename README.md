@@ -95,7 +95,7 @@ Después de cargar la malla, el sistema entra al menú principal.
 
 ---
 
-# 📋 Menú principal (basado en el código real)
+# 📋 Menú principal
 
 ```
 ========================================
