@@ -270,3 +270,155 @@ void freeAppState(AppState* state) {
     if (state->estudiante) freeEstudiante(state->estudiante);
     free(state);
 }
+
+void ingresarNotas(AppState* state) {
+    if (!state->datos_cargados) {
+        printf("\nPrimero debes cargar una malla curricular.\n");
+        return;
+    }
+    
+    limpiarPantalla();
+    printf("========================================\n");
+    printf("       INGRESAR/EDITAR NOTAS\n");
+    printf("========================================\n\n");
+    
+    printf("Ingrese el codigo de la asignatura: ");
+    char codigo[15];
+    scanf("%s", codigo);
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+    
+    MapPair* pair = map_search(state->estudiante->malla, codigo);
+    if (pair == NULL) {
+        printf("\nAsignatura no encontrada.\n");
+        return;
+    }
+    
+    Asignatura* asig = (Asignatura*)pair->value;
+    printf("\nAsignatura: %s - %s\n", asig->codigo, asig->nombre);
+    printf("Nota actual: %.1f\n", asig->nota);
+    printf("Estado: %s\n", situacionToString(asig->situacion));
+    
+    printf("\nIngrese la nueva nota (1.0 - 7.0): ");
+    scanf("%f", &asig->nota);
+    while ((c = getchar()) != '\n' && c != EOF);
+    
+    if (asig->nota >= 4.0) {
+        asig->situacion = APROBADO;
+        printf("\nNota registrada. Asignatura marcada como APROBADO.\n");
+    } else {
+        asig->situacion = REPROBADO;
+        printf("\nNota registrada. Asignatura marcada como REPROBADO.\n");
+    }
+}
+
+void exportarReporte(AppState* state) {
+    if (!state->datos_cargados) {
+        printf("\nNo hay datos para exportar.\n");
+        return;
+    }
+    
+    FILE* archivo = fopen(state->csv_path, "w");
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo para escritura");
+        return;
+    }
+    
+    fprintf(archivo, "KEY,NAME,SEMESTER,CREDITS,PREREQS,GRADES,SITUATION\n");
+    
+    for (int sem = 1; sem <= 11; sem++) {
+        MapPair* pair = map_first(state->estudiante->malla);
+        while (pair) {
+            Asignatura* asig = (Asignatura*)pair->value;
+            if (asig->semestre == sem) {
+                fprintf(archivo, "%s,%s,%d,%d,", 
+                        asig->codigo, asig->nombre, asig->semestre, asig->creditos);
+                
+                char* prereq = list_first(asig->prerequisitos);
+                bool first = true;
+                while (prereq) {
+                    if (!first) fprintf(archivo, ",");
+                    fprintf(archivo, "%s", prereq);
+                    first = false;
+                    prereq = list_next(asig->prerequisitos);
+                }
+                
+                fprintf(archivo, ",");
+                
+                if (asig->nota > 0) {
+                    fprintf(archivo, "%.1f", asig->nota);
+                }
+                
+                fprintf(archivo, ",%s\n", situacionToString(asig->situacion));
+            }
+            pair = map_next(state->estudiante->malla);
+        }
+    }
+    
+    fclose(archivo);
+    printf("\nReporte exportado exitosamente a: %s\n", state->csv_path);
+}
+
+void inscribirAsignaturas(AppState* state, int num_semestre) {
+    if (!state->datos_cargados) {
+        printf("\nPrimero debes cargar una malla curricular.\n");
+        return;
+    }
+    
+    limpiarPantalla();
+    printf("========================================\n");
+    printf("    INSCRIBIR ASIGNATURAS - SEMESTRE %d\n", num_semestre);
+    printf("========================================\n\n");
+    
+    List* disponibles = obtenerAsignaturasDisponibles(state, num_semestre);
+    
+    if (list_size(disponibles) == 0) {
+        printf("No hay asignaturas disponibles para inscribir en este semestre.\n");
+        printf("(Verifica que hayas aprobado los prerequisitos)\n");
+        list_clean(disponibles);
+        free(disponibles);
+        return;
+    }
+    
+    printf("Asignaturas disponibles para inscripcion:\n\n");
+    
+    Asignatura* asig = list_first(disponibles);
+    int index = 1;
+    while (asig) {
+        printf("%d. %s - %s (%d creditos)\n", index, asig->codigo, asig->nombre, asig->creditos);
+        
+        if (list_size(asig->prerequisitos) > 0) {
+            printf("   Prerequisitos: ");
+            char* prereq = list_first(asig->prerequisitos);
+            bool first = true;
+            while (prereq) {
+                if (!first) printf(", ");
+                printf("%s", prereq);
+                first = false;
+                prereq = list_next(asig->prerequisitos);
+            }
+            printf("\n");
+        }
+        
+        index++;
+        asig = list_next(disponibles);
+    }
+    
+    printf("\n¿Marcar todas como CURSANDO? (S/N): ");
+    char opcion;
+    scanf(" %c", &opcion);
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+    
+    if (opcion == 'S' || opcion == 's') {
+        asig = list_first(disponibles);
+        while (asig) {
+            asig->situacion = CURSANDO;
+            asig = list_next(disponibles);
+        }
+        printf("\nAsignaturas inscritas exitosamente!\n");
+    }
+    
+    list_clean(disponibles);
+    free(disponibles);
+}
