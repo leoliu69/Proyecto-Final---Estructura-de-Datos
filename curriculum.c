@@ -242,3 +242,17 @@ Estudiante* createEstudiante(const char* nombre) {
 
     return e;
 }
+
+void freeEstudiante(Estudiante* est) {
+    if (!est) return;
+
+    MapPair* p = map_first(est->malla);
+    while (p) {
+        freeAsignatura((Asignatura*)p->value);
+        p = map_next(est->malla);
+    }
+
+    free(est->malla);
+    free(est->semestres_cursados);
+    free(est);
+}
