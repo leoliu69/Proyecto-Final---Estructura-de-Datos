@@ -111,7 +111,9 @@ Seleccione una opcion:
 1) Cargar malla curricular
 
 Carga nuevamente la malla por defecto desde:
+
 ```data/curriculum_map.csv```
+
 2) Actualizar semestre(s):
 -Solicita un número entre 1 y 11
 -Ejecuta:
