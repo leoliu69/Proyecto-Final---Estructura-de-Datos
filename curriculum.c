@@ -256,3 +256,17 @@ void freeEstudiante(Estudiante* est) {
     free(est->semestres_cursados);
     free(est);
 }
+
+AppState* createAppState() {
+    AppState* s = malloc(sizeof(AppState));
+    s->estudiante = NULL;
+    s->datos_cargados = false;
+    strcpy(s->csv_path, "");
+    return s;
+}
+
+void freeAppState(AppState* state) {
+    if (!state) return;
+    if (state->estudiante) freeEstudiante(state->estudiante);
+    free(state);
+}
