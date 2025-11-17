@@ -174,3 +174,71 @@ void verAvance(AppState* state) {
 
     printf("\n========================================\n");
 }
+
+Asignatura* createAsignatura(const char* codigo, const char* nombre, int semestre, int creditos, const char* prereqs) {
+    Asignatura* asig = malloc(sizeof(Asignatura));
+    if (!asig) return NULL;
+
+    strcpy(asig->codigo, codigo);
+    strcpy(asig->nombre, nombre);
+    asig->semestre = semestre;
+    asig->creditos = creditos;
+    asig->nota = 0.0f;
+    asig->situacion = SIN_CURSAR;
+
+    asig->prerequisitos = list_create();
+    
+    if (prereqs && strlen(prereqs) > 0) {
+        char* copia = strdup(prereqs);
+        char* token = strtok(copia, " ");
+        while (token) {
+            pushBack(asig->prerequisitos, strdup(token));
+            token = strtok(NULL, " ");
+        }
+        free(copia);
+    }
+
+    return asig;
+}
+
+void freeAsignatura(Asignatura* asig) {
+    if (!asig) return;
+
+    char* p = list_first(asig->prerequisitos);
+    while (p) {
+        free(p);
+        p = list_next(asig->prerequisitos);
+    }
+
+    free(asig->prerequisitos);
+    free(asig);
+}
+
+Semestre* createSemestre(int numero) {
+    Semestre* s = malloc(sizeof(Semestre));
+    s->numero = numero;
+    s->asignaturas = list_create();
+    s->promedio = 0.0;
+    return s;
+}
+
+void freeSemestre(Semestre* sem) {
+    if (!sem) return;
+
+    free(sem->asignaturas);
+    free(sem);
+}
+
+Estudiante* createEstudiante(const char* nombre) {
+    Estudiante* e = malloc(sizeof(Estudiante));
+
+    strcpy(e->nombre, nombre);
+    e->malla = createMap(is_equal_string);
+    e->semestres_cursados = list_create();
+
+    e->creditos_aprobados = 0;
+    e->promedio_acumulado = 0;
+    e->creditos_totales = 0;
+
+    return e;
+}
