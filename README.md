@@ -59,15 +59,12 @@ El sistema carga una malla curricular desde un archivo, permite registrar semest
 En Linux / Mac:
 
 ```bash
-gcc main.c curriculum.c tdas/*.c -o navegador
-
-**## ▶️__textoClonar el repositori
-
-En Linux / Mac:
-./navegador
+gcc main.c curriculum.c tdas/list.c tdas/map.c tdas/extra.c -o curriculum -Itdas -lm
+./curriculum
 
 En Windows:
-./navegador.exe
+gcc main.c curriculum.c tdas/list.c tdas/map.c tdas/extra.c -o curriculum -Itdas -lm
+./curriculum
 
 
 📂 Requisitos del archivo CSV
