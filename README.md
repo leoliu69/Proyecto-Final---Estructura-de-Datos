@@ -160,12 +160,13 @@ Termina el programa
 Asignatura:
 ```
 typedef struct {
-    char codigo[10];
-    char nombre[60];
-    float creditos;
-    float notaFinal;
-    bool aprobada;
+    char codigo[15];
+    char nombre[100];
+    int semestre;
+    int creditos;
     List* prerequisitos;
+    float nota;
+    Situacion situacion;
 } Asignatura;
 ```
 Semestre:
@@ -173,17 +174,20 @@ Semestre:
 typedef struct {
     int numero;
     List* asignaturas;
+    float promedio;
 } Semestre;
+
 ```
 Estudiante:
 ```
 typedef struct {
-    char nombre[50];
+    char nombre[100];
     Map* malla;
-    List* semestres;
+    List* semestres_cursados;
     int creditos_aprobados;
+    float promedio_acumulado;
     int creditos_totales;
-} Estudiante; 
+} Estudiante;
 ```
 ```
 AppState
