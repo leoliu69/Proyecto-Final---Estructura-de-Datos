@@ -271,6 +271,212 @@ void freeAppState(AppState* state) {
     free(state);
 }
 
+Situacion stringToSituacion(const char* str) {
+    if (str == NULL || strlen(str) == 0) return SIN_CURSAR;
+    if (strcmp(str, "CURSANDO") == 0) return CURSANDO;
+    if (strcmp(str, "APROBADO") == 0) return APROBADO;
+    if (strcmp(str, "REPROBADO") == 0) return REPROBADO;
+    if (strcmp(str, "RETIRADO") == 0) return RETIRADO;
+    return SIN_CURSAR;
+}
+
+const char* situacionToString(Situacion sit) {
+    switch (sit) {
+        case SIN_CURSAR: return "";
+        case CURSANDO: return "CURSANDO";
+        case APROBADO: return "APROBADO";
+        case REPROBADO: return "REPROBADO";
+        case RETIRADO: return "RETIRADO";
+        default: return "";
+    }
+}
+
+void cargarMalla(AppState* state, const char* csv_path) {
+    FILE* archivo = fopen(csv_path, "r");
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        return;
+    }
+    
+    strcpy(state->csv_path, csv_path);
+    
+    if (state->estudiante != NULL) {
+        freeEstudiante(state->estudiante);
+        state->estudiante = NULL;
+    }
+    
+    state->estudiante = createEstudiante("Estudiante");
+    if (state->estudiante == NULL) {
+        fclose(archivo);
+        return;
+    }
+    
+    char** campos = leer_linea_csv(archivo, ',');
+    if (campos == NULL) {
+        fclose(archivo);
+        return;
+    }
+    
+    int total_creditos = 0;
+    int count = 0;
+    
+    while ((campos = leer_linea_csv(archivo, ',')) != NULL) {
+        if (campos[0] == NULL || campos[1] == NULL || campos[2] == NULL || campos[3] == NULL) {
+            continue;
+        }
+        
+        char* codigo = campos[0];
+        char* nombre = campos[1];
+        int semestre = atoi(campos[2]);
+        int creditos = atoi(campos[3]);
+        char* prereqs = (campos[4] != NULL) ? campos[4] : "";
+        char* grades = (campos[5] != NULL) ? campos[5] : "";
+        char* situacion_str = (campos[6] != NULL) ? campos[6] : "";
+        
+        Asignatura* asig = createAsignatura(codigo, nombre, semestre, creditos, prereqs);
+        if (asig == NULL) continue;
+        
+        if (strlen(grades) > 0) {
+            asig->nota = atof(grades);
+        }
+        
+        asig->situacion = stringToSituacion(situacion_str);
+        
+        total_creditos += creditos;
+        
+        char* codigo_key = strdup(codigo);
+        map_insert(state->estudiante->malla, codigo_key, asig);
+        count++;
+    }
+    
+    fclose(archivo);
+    
+    state->estudiante->creditos_totales = total_creditos;
+    state->datos_cargados = true;
+    
+    printf("\nMalla curricular cargada exitosamente.\n");
+    printf("Total de asignaturas: %d\n", count);
+    printf("Total de creditos del programa: %d\n", total_creditos);
+}
+
+bool validarPrerequisitos(Estudiante* est, Asignatura* asig) {
+    if (est == NULL || asig == NULL) return false;
+    
+    char* prereq = list_first(asig->prerequisitos);
+    while (prereq) {
+        MapPair* pair = map_search(est->malla, prereq);
+        if (pair == NULL) {
+            return false;
+        }
+        
+        Asignatura* prereq_asig = (Asignatura*)pair->value;
+        if (prereq_asig->situacion != APROBADO) {
+            return false;
+        }
+        
+        prereq = list_next(asig->prerequisitos);
+    }
+    
+    return true;
+}
+
+List* obtenerAsignaturasDisponibles(AppState* state, int semestre) {
+    List* disponibles = list_create();
+    if (disponibles == NULL) return NULL;
+
+    /* map_search reinicia el iterador interno, por lo que almacenamos primero
+       los punteros a las asignaturas y luego evaluamos sus prerequisitos. */
+    Asignatura* snapshot[MAX_COURSES];
+    int count = 0;
+
+    MapPair* pair = map_first(state->estudiante->malla);
+    while (pair && count < MAX_COURSES) {
+        snapshot[count++] = (Asignatura*)pair->value;
+        pair = map_next(state->estudiante->malla);
+    }
+
+    for (int i = 0; i < count; i++) {
+        Asignatura* asig = snapshot[i];
+        if (asig->semestre == semestre && asig->situacion == SIN_CURSAR) {
+            if (validarPrerequisitos(state->estudiante, asig)) {
+                list_pushBack(disponibles, asig);
+            }
+        }
+    }
+
+    return disponibles;
+}
+
+void actualizarSemestre(AppState* state, int num_semestre) {
+    if (!state->datos_cargados) {
+        printf("\nPrimero debes cargar una malla curricular.\n");
+        return;
+    }
+    
+    limpiarPantalla();
+    printf("========================================\n");
+    printf("    ACTUALIZAR SEMESTRE %d\n", num_semestre);
+    printf("========================================\n\n");
+    
+    MapPair* pair = map_first(state->estudiante->malla);
+    int count = 0;
+    
+    while (pair) {
+        Asignatura* asig = (Asignatura*)pair->value;
+        
+        if (asig->semestre == num_semestre) {
+            count++;
+            printf("\nAsignatura: %s - %s\n", asig->codigo, asig->nombre);
+            printf("Creditos: %d\n", asig->creditos);
+            printf("Estado actual: %s\n", situacionToString(asig->situacion));
+            
+            printf("\nSeleccione nueva situacion:\n");
+            printf("1. SIN CURSAR\n");
+            printf("2. CURSANDO\n");
+            printf("3. APROBADO\n");
+            printf("4. REPROBADO\n");
+            printf("5. RETIRADO\n");
+            printf("6. Mantener estado actual\n");
+            printf("Opcion: ");
+            
+            int opcion;
+            scanf("%d", &opcion);
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            
+            switch (opcion) {
+                case 1: asig->situacion = SIN_CURSAR; break;
+                case 2: asig->situacion = CURSANDO; break;
+                case 3: asig->situacion = APROBADO; break;
+                case 4: asig->situacion = REPROBADO; break;
+                case 5: asig->situacion = RETIRADO; break;
+                case 6: break;
+                default: printf("Opcion invalida. Manteniendo estado actual.\n");
+            }
+            
+            if (asig->situacion == APROBADO || asig->situacion == REPROBADO) {
+                printf("Ingrese la nota final (1.0 - 7.0): ");
+                scanf("%f", &asig->nota);
+                while ((c = getchar()) != '\n' && c != EOF);
+                
+                if (asig->nota >= 4.0) {
+                    asig->situacion = APROBADO;
+                } else {
+                    asig->situacion = REPROBADO;
+                }
+            }
+        }
+        
+        pair = map_next(state->estudiante->malla);
+    }
+    
+    if (count == 0) {
+        printf("\nNo hay asignaturas en el semestre %d.\n", num_semestre);
+    } else {
+        printf("\nSemestre %d actualizado exitosamente!\n", num_semestre);
+    }
+}
+
 void ingresarNotas(AppState* state) {
     if (!state->datos_cargados) {
         printf("\nPrimero debes cargar una malla curricular.\n");
