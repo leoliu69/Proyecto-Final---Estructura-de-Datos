@@ -140,6 +140,7 @@ Promedios actualizados
 
 Guarda la información actual del estudiante:
 ```exportarReporte(state);```
+
 7) Salir
 
 Muestra mensaje de despedida
