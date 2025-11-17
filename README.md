@@ -61,7 +61,7 @@ En Linux / Mac:
 ```bash
 gcc main.c curriculum.c tdas/*.c -o navegador
 
-**## ▶️__textoClonar el repositori
+## ▶️Clonar el repositorio
 
 En Linux / Mac:
 ./navegador
