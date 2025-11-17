@@ -192,7 +192,7 @@ Asignatura* createAsignatura(const char* codigo, const char* nombre, int semestr
         char* copia = strdup(prereqs);
         char* token = strtok(copia, " ");
         while (token) {
-            pushBack(asig->prerequisitos, strdup(token));
+            list_pushBack(asig->prerequisitos, strdup(token));
             token = strtok(NULL, " ");
         }
         free(copia);
@@ -233,7 +233,7 @@ Estudiante* createEstudiante(const char* nombre) {
     Estudiante* e = malloc(sizeof(Estudiante));
 
     strcpy(e->nombre, nombre);
-    e->malla = createMap(is_equal_string);
+    e->malla = map_create(is_equal_string);
     e->semestres_cursados = list_create();
 
     e->creditos_aprobados = 0;
